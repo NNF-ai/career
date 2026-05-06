@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>직업 가치관 검사</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #e94560;
+    --accent2: #f5a623;
+    --surface: #16213e;
+    --card: #0f3460;
+    --text: #eaeaea;
+    --text-muted: #a0aec0;
+    --success: #48bb78;
+    --border: rgba(255,255,255,0.1);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--primary);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === SCREENS === */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* === INTRO === */
+  #intro {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .orb1 { width: 300px; height: 300px; background: var(--accent); top: -100px; right: -100px; }
+  .orb2 { width: 200px; height: 200px; background: #6c63ff; bottom: -50px; left: -50px; }
+  .orb3 { width: 150px; height: 150px; background: var(--accent2); top: 40%; left: 40%; }
+
+  .intro-content { position: relative; z-index: 1; text-align: center; max-width: 420px; width: 100%; }
+
+  .logo-icon {
+    width: 88px; height: 88px;
+    background: linear-gradient(135deg, var(--accent), #f5a623);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    font-size: 40px;
+    box-shadow: 0 20px 60px rgba(233,69,96,0.4);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .intro-title {
+    font-size: 30px; font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 40%, #f5a623);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .intro-subtitle {
+    font-size: 15px; color: var(--text-muted);
+    margin-bottom: 32px; line-height: 1.6;
+  }
+
+  .info-cards {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 32px;
+  }
+
+  .info-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .info-card .ic-icon { font-size: 24px; margin-bottom: 6px; }
+  .info-card .ic-val { font-size: 18px; font-weight: 700; color: var(--accent2); }
+  .info-card .ic-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .btn-start {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--accent), #c0392b);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 32px rgba(233,69,96,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-start:active { transform: scale(0.97); }
+
+  .intro-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; line-height: 1.6; }
+
+  /* === QUESTION === */
+  #question { background: var(--primary); padding: 0; }
+
+  .q-header {
+    background: rgba(15,52,96,0.8);
+    backdrop-filter: blur(20px);
+    padding: 16px 20px 12px;
+    position: sticky; top: 0; z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .q-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .q-category-tag {
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(233,69,96,0.2);
+    color: var(--accent);
+    border: 1px solid rgba(233,69,96,0.3);
+  }
+
+  .progress-bar-outer {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .q-body {
+    flex: 1;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .q-number-badge {
+    display: inline-flex;
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #f5a623);
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  .q-text {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: -0.3px;
+  }
+
+  .q-hint { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .scale-options {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .scale-btn {
+    flex: 1;
+    aspect-ratio: 1;
+    max-width: 56px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scale-btn .score-num {
+    font-size: 18px; font-weight: 800;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+
+  .scale-btn .score-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .scale-btn:active { transform: scale(0.93); }
+
+  .scale-btn.selected {
+    background: linear-gradient(135deg, var(--accent), #c0392b);
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(233,69,96,0.4);
+  }
+
+  .scale-btn.selected .score-num { color: white; }
+  .scale-btn.selected .score-dot { background: rgba(255,255,255,0.8); transform: scale(1.5); }
+
+  .scale-btn:nth-child(2).selected { background: linear-gradient(135deg, #e07b20, #c0681a); border-color: #e07b20; }
+  .scale-btn:nth-child(3).selected { background: linear-gradient(135deg, #6c63ff, #5a51e0); border-color: #6c63ff; }
+  .scale-btn:nth-child(4).selected { background: linear-gradient(135deg, #2ecc71, #27ae60); border-color: #2ecc71; }
+  .scale-btn:nth-child(5).selected { background: linear-gradient(135deg, #f5a623, #d4891c); border-color: #f5a623; }
+
+  .q-nav {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px 32px;
+  }
+
+  .btn-prev {
+    flex: 1;
+    padding: 15px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-next {
+    flex: 2;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent), #c0392b);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+  }
+  .btn-next:disabled { opacity: 0.4; box-shadow: none; }
+  .btn-next:not(:disabled):active { transform: scale(0.97); }
+
+  /* === RESULT === */
+  #result { background: var(--primary); overflow-y: auto; }
+
+  .result-header {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    padding: 40px 24px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(233,69,96,0.2) 0%, transparent 60%);
+  }
+
+  .result-crown { font-size: 48px; margin-bottom: 12px; position: relative; z-index: 1; animation: bounce 1s ease infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  .result-title { font-size: 14px; color: var(--accent); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; position: relative; z-index: 1; margin-bottom: 8px; }
+  .result-type { font-size: 26px; font-weight: 800; position: relative; z-index: 1; line-height: 1.3; }
+  .result-desc { font-size: 14px; color: var(--text-muted); margin-top: 10px; line-height: 1.7; position: relative; z-index: 1; }
+
+  .result-body { padding: 24px; }
+
+  .section-title {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Chart */
+  .chart-container { margin-bottom: 32px; }
+
+  .chart-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .chart-label {
+    font-size: 13px;
+    font-weight: 600;
+    width: 80px;
+    flex-shrink: 0;
+    text-align: right;
+    color: var(--text-muted);
+  }
+
+  .chart-bar-outer {
+    flex: 1;
+    height: 28px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .chart-bar-inner {
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    white-space: nowrap;
+  }
+
+  .chart-score { font-size: 13px; font-weight: 700; width: 28px; text-align: center; }
+
+  /* Top values */
+  .top-values { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+
+  .value-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .value-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .value-card:nth-child(1)::before { background: linear-gradient(to bottom, var(--accent2), var(--accent)); }
+  .value-card:nth-child(2)::before { background: linear-gradient(to bottom, #6c63ff, #4834d4); }
+  .value-card:nth-child(3)::before { background: linear-gradient(to bottom, var(--success), #2ecc71); }
+
+  .vc-rank {
+    font-size: 24px; font-weight: 900;
+    color: var(--accent2);
+    line-height: 1;
+    min-width: 28px;
+  }
+  .value-card:nth-child(2) .vc-rank { color: #8b7cf8; }
+  .value-card:nth-child(3) .vc-rank { color: var(--success); }
+
+  .vc-info .vc-icon { font-size: 20px; margin-bottom: 4px; }
+  .vc-info .vc-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .vc-info .vc-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* Career suggestions */
+  .career-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+
+  .career-tag {
+    padding: 8px 14px;
+    background: rgba(233,69,96,0.1);
+    border: 1px solid rgba(233,69,96,0.25);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff8fa3;
+  }
+
+  /* QR section */
+  .qr-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .qr-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .qr-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+  #qrcode {
+    display: inline-block;
+    padding: 12px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .btn-share {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .btn-share:active { background: rgba(255,255,255,0.15); }
+
+  .btn-retry {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), #c0392b);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+  }
+
+  /* Intro animation */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .intro-content > * { animation: slideUp 0.5s ease forwards; }
+  .intro-content > *:nth-child(1) { animation-delay: 0.1s; opacity: 0; }
+  .intro-content > *:nth-child(2) { animation-delay: 0.2s; opacity: 0; }
+  .intro-content > *:nth-child(3) { animation-delay: 0.3s; opacity: 0; }
+  .intro-content > *:nth-child(4) { animation-delay: 0.4s; opacity: 0; }
+  .intro-content > *:nth-child(5) { animation-delay: 0.5s; opacity: 0; }
+  .intro-content > *:nth-child(6) { animation-delay: 0.6s; opacity: 0; }
+
+  .answered-indicator {
+    display: flex; justify-content: center; gap: 4px; margin-top: 20px;
+  }
+  .ans-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s;
+  }
+  .ans-dot.done { background: var(--success); }
+  .ans-dot.current { background: var(--accent); transform: scale(1.3); }
+
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+  <div class="intro-content">
+    <div class="logo-icon">🧭</div>
+    <div class="intro-title">직업 가치관 검사</div>
+    <div class="intro-subtitle">나에게 가장 중요한 직업적 가치는 무엇인지<br>알아보고 맞춤 직업군을 탐색하세요</div>
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="ic-icon">📋</div>
+        <div class="ic-val">30문항</div>
+        <div class="ic-label">총 질문 수</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">⏱</div>
+        <div class="ic-val">5~7분</div>
+        <div class="ic-label">소요 시간</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">🎯</div>
+        <div class="ic-val">10가지</div>
+        <div class="ic-label">가치관 영역</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-icon">📊</div>
+        <div class="ic-val">즉시</div>
+        <div class="ic-label">결과 확인</div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startTest()">검사 시작하기 →</button>
+    <div class="intro-note">※ 정답은 없습니다. 솔직하게 응답할수록 정확한 결과를 얻을 수 있습니다.</div>
+  </div>
+</div>
+
+<!-- QUESTION -->
+<div id="question" class="screen">
+  <div class="q-header">
+    <div class="q-meta">
+      <span class="q-counter" id="qCounter">1 / 30</span>
+      <span class="q-category-tag" id="qCategory">성취</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar" style="width:3.3%"></div>
+    </div>
+  </div>
+
+  <div class="q-body">
+    <div>
+      <div class="q-number-badge" id="qNum">1</div>
+      <div class="q-text" id="qText">질문 텍스트</div>
+      <div class="q-hint">직업을 선택할 때 이 요소가 얼마나 중요한가요?</div>
+    </div>
+
+    <div>
+      <div class="scale-labels">
+        <span>전혀 중요하지 않다</span>
+        <span>매우 중요하다</span>
+      </div>
+      <div class="scale-options" id="scaleOptions">
+        <button class="scale-btn" onclick="selectScore(1)">
+          <span class="score-num">1</span>
+          <span class="score-dot"></span>
+        </button>
+        <button class="scale-btn" onclick="selectScore(2)">
+          <span class="score-num">2</span>
+          <span class="score-dot"></span>
+        </button>
+        <button class="scale-btn" onclick="selectScore(3)">
+          <span class="score-num">3</span>
+          <span class="score-dot"></span>
+        </button>
+        <button class="scale-btn" onclick="selectScore(4)">
+          <span class="score-num">4</span>
+          <span class="score-dot"></span>
+        </button>
+        <button class="scale-btn" onclick="selectScore(5)">
+          <span class="score-num">5</span>
+          <span class="score-dot"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="answered-indicator" id="dotIndicator"></div>
+  </div>
+
+  <div class="q-nav">
+    <button class="btn-prev" onclick="prevQ()">← 이전</button>
+    <button class="btn-next" id="btnNext" onclick="nextQ()" disabled>다음 →</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-header">
+    <div class="result-crown" id="resultCrown">🏆</div>
+    <div class="result-title">나의 핵심 직업 가치관</div>
+    <div class="result-type" id="resultType">성취 지향형</div>
+    <div class="result-desc" id="resultDesc">설명 텍스트</div>
+  </div>
+
+  <div class="result-body">
+    <div class="section-title">📊 가치관 영역별 점수</div>
+    <div class="chart-container" id="chartContainer"></div>
+
+    <div class="section-title">🥇 상위 가치관</div>
+    <div class="top-values" id="topValues"></div>
+
+    <div class="section-title">💼 추천 직업군</div>
+    <div class="career-tags" id="careerTags"></div>
+
+    <div class="qr-section">
+      <div class="qr-title">📱 QR 코드로 공유하기</div>
+      <div class="qr-sub">이 QR코드를 스캔하면 검사를 바로 시작할 수 있어요</div>
+      <div id="qrcode"></div>
+      <button class="btn-share" onclick="copyLink()">🔗 링크 복사하기</button>
+      <button class="btn-share" onclick="shareResult()">📤 결과 공유하기</button>
+    </div>
+
+    <button class="btn-retry" onclick="retryTest()">🔄 다시 검사하기</button>
+  </div>
+</div>
+
+<script>
+// ============================
+// 문항 데이터
+// ============================
+const QUESTIONS = [
+  // 성취 (Achievement) - Q1~3
+  { category: '성취', text: '어렵고 도전적인 목표를 세우고 이를 달성하는 것이 중요하다.' },
+  { category: '성취', text: '뛰어난 성과를 내고 최고가 되는 것이 나에게 의미 있다.' },
+  { category: '성취', text: '일에서 지속적으로 발전하고 더 나은 결과를 추구하는 것이 중요하다.' },
+  // 자율성 (Autonomy) - Q4~6
+  { category: '자율성', text: '내 방식대로 스스로 일할 수 있는 자유가 중요하다.' },
+  { category: '자율성', text: '일하는 시간과 방법을 내가 직접 결정할 수 있어야 한다.' },
+  { category: '자율성', text: '상사의 간섭 없이 독립적으로 업무를 수행하는 것이 중요하다.' },
+  // 안정성 (Security) - Q7~9
+  { category: '안정성', text: '오랫동안 안정적으로 일할 수 있는 직업을 갖는 것이 중요하다.' },
+  { category: '안정성', text: '해고 위험이 없고 꾸준한 수입이 보장되는 것이 중요하다.' },
+  { category: '안정성', text: '예측 가능하고 일관된 업무 환경이 나에게 중요하다.' },
+  // 경제적 보상 (Economic Reward) - Q10~12
+  { category: '경제적 보상', text: '높은 급여와 경제적 풍요를 얻는 것이 직업 선택에서 중요하다.' },
+  { category: '경제적 보상', text: '나의 노력과 성과에 따른 충분한 금전적 보상이 중요하다.' },
+  { category: '경제적 보상', text: '물질적으로 여유로운 삶을 영위할 수 있는 직업이 중요하다.' },
+  // 사회적 인정 (Social Recognition) - Q13~15
+  { category: '사회적 인정', text: '사람들로부터 존경받고 사회적으로 인정받는 직업이 중요하다.' },
+  { category: '사회적 인정', text: '직업을 통해 사회적으로 높은 지위와 명예를 얻는 것이 중요하다.' },
+  { category: '사회적 인정', text: '나의 전문성과 업적이 주변에 알려지는 것이 중요하다.' },
+  // 사회 봉사 (Social Service) - Q16~18
+  { category: '사회 봉사', text: '다른 사람들을 돕고 사회에 긍정적인 영향을 미치는 것이 중요하다.' },
+  { category: '사회 봉사', text: '사회 문제를 해결하고 세상을 더 나은 곳으로 만드는 데 기여하고 싶다.' },
+  { category: '사회 봉사', text: '내 일이 공익에 도움이 되어야 한다고 생각한다.' },
+  // 창의성 (Creativity) - Q19~21
+  { category: '창의성', text: '새로운 아이디어를 내고 창의적으로 문제를 해결하는 것이 중요하다.' },
+  { category: '창의성', text: '기존과 다른 방식으로 일하고 혁신적인 것을 만드는 것이 중요하다.' },
+  { category: '창의성', text: '예술적·창의적 표현이 가능한 직업 환경이 중요하다.' },
+  // 인간관계 (Relationships) - Q22~24
+  { category: '인간관계', text: '좋은 동료들과 함께 협력하며 일하는 환경이 중요하다.' },
+  { category: '인간관계', text: '직장 내 따뜻한 인간관계와 유대감이 중요하다.' },
+  { category: '인간관계', text: '다양한 사람들과 소통하고 교류하는 업무가 중요하다.' },
+  // 자기계발 (Self-Development) - Q25~27
+  { category: '자기계발', text: '일을 통해 지속적으로 새로운 것을 배우고 성장하는 것이 중요하다.' },
+  { category: '자기계발', text: '전문 지식과 기술을 꾸준히 향상시킬 수 있는 직업이 중요하다.' },
+  { category: '자기계발', text: '일을 통해 나의 잠재 능력을 최대한 발휘할 수 있어야 한다.' },
+  // 일·삶 균형 (Work-Life Balance) - Q28~30
+  { category: '일·삶 균형', text: '충분한 여가 시간과 개인 생활이 보장되는 직업이 중요하다.' },
+  { category: '일·삶 균형', text: '업무 외 시간에 가족과 취미 생활을 즐길 수 있어야 한다.' },
+  { category: '일·삶 균형', text: '과도한 야근 없이 규칙적인 생활 패턴을 유지할 수 있어야 한다.' },
+];
+
+const CATEGORIES = ['성취', '자율성', '안정성', '경제적 보상', '사회적 인정', '사회 봉사', '창의성', '인간관계', '자기계발', '일·삶 균형'];
+
+const CATEGORY_META = {
+  '성취':      { icon: '🏆', color: '#f5a623', desc: '도전적인 목표를 세우고 이를 달성하는 과정에서 큰 보람을 느낍니다. 경쟁적인 환경에서 최고를 향해 나아가는 직업이 어울립니다.', careers: ['영업·마케팅', '스포츠 선수', '기업 경영', '투자·금융', '연구개발'] },
+  '자율성':    { icon: '🕊️', color: '#8b5cf6', desc: '스스로 결정하고 자유롭게 일하는 환경을 중요시합니다. 자율적인 업무 방식과 유연한 근무가 가능한 직업이 어울립니다.', careers: ['프리랜서', '1인 기업', '디자이너', '작가·작곡가', '컨설턴트'] },
+  '안정성':    { icon: '🛡️', color: '#3b82f6', desc: '꾸준하고 안정적인 환경에서 일하는 것을 선호합니다. 고용이 보장되고 예측 가능한 직업이 잘 맞습니다.', careers: ['공무원', '교사·교수', '의료인', '금융권', '대기업 정규직'] },
+  '경제적 보상': { icon: '💰', color: '#10b981', desc: '노력에 걸맞는 충분한 경제적 보상을 중요하게 생각합니다. 성과 중심의 보상 체계가 있는 직업이 어울립니다.', careers: ['투자·금융', '의사·변호사', 'IT 전문직', '부동산 전문가', '기술 창업'] },
+  '사회적 인정': { icon: '🌟', color: '#f43f5e', desc: '타인의 인정과 사회적 지위를 중요하게 여깁니다. 전문성과 명성을 쌓을 수 있는 직업이 잘 맞습니다.', careers: ['의사·변호사', '교수·연구원', '정치인·외교관', '언론인', '저명 전문가'] },
+  '사회 봉사':  { icon: '🤝', color: '#06b6d4', desc: '사회에 기여하고 다른 사람을 돕는 것에 가장 큰 보람을 느낍니다. 공익적 가치를 추구하는 직업이 어울립니다.', careers: ['사회복지사', '의료·간호', 'NGO 활동가', '교육자', '공공 행정'] },
+  '창의성':    { icon: '🎨', color: '#a855f7', desc: '새로운 아이디어와 혁신적인 방식으로 문제를 해결하는 것을 즐깁니다. 창의력을 발휘할 수 있는 환경이 잘 맞습니다.', careers: ['디자이너', '예술가·작가', '광고·마케팅', 'UX/UI', '제품 개발'] },
+  '인간관계':  { icon: '👥', color: '#f97316', desc: '좋은 사람들과 함께 일하는 것을 가장 중요하게 생각합니다. 협업과 소통이 활발한 직업 환경이 잘 맞습니다.', careers: ['HR·인사', '영업·고객 서비스', '교사', '팀 매니저', '사회복지'] },
+  '자기계발':  { icon: '📚', color: '#84cc16', desc: '일을 통해 끊임없이 배우고 성장하는 것을 추구합니다. 학습과 전문성 향상의 기회가 많은 직업이 어울립니다.', careers: ['연구원·학자', '전문직', '컨설턴트', 'IT 개발자', '의료·법조'] },
+  '일·삶 균형': { icon: '⚖️', color: '#64748b', desc: '일과 개인 생활의 균형을 중요시합니다. 적절한 업무 강도와 충분한 여가를 보장하는 직업이 잘 맞습니다.', careers: ['공무원', '일반 사무직', '교사', '연구직', '복지 시설'] },
+};
+
+const TYPE_PROFILES = {
+  '성취': { title: '도전적 성취 추구형', crown: '🏆' },
+  '자율성': { title: '자유로운 자율 추구형', crown: '🕊️' },
+  '안정성': { title: '안정 지향 균형형', crown: '🛡️' },
+  '경제적 보상': { title: '경제적 성공 추구형', crown: '💰' },
+  '사회적 인정': { title: '사회적 영향력 추구형', crown: '🌟' },
+  '사회 봉사': { title: '사회 기여·봉사형', crown: '🤝' },
+  '창의성': { title: '창의적 혁신 추구형', crown: '🎨' },
+  '인간관계': { title: '관계 중심 협력형', crown: '👥' },
+  '자기계발': { title: '지속 성장 추구형', crown: '📚' },
+  '일·삶 균형': { title: '워라밸 중심 균형형', crown: '⚖️' },
+};
+
+// ============================
+// 상태
+// ============================
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let qrGenerated = false;
+
+// ============================
+// 화면 전환
+// ============================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ============================
+// 검사 시작
+// ============================
+function startTest() {
+  current = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  qrGenerated = false;
+  renderQuestion();
+  showScreen('question');
+  renderDots();
+}
+
+function retryTest() {
+  startTest();
+}
+
+// ============================
+// 문항 렌더링
+// ============================
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById('qCounter').textContent = `${current + 1} / ${QUESTIONS.length}`;
+  document.getElementById('qCategory').textContent = q.category;
+  document.getElementById('qNum').textContent = current + 1;
+  document.getElementById('qText').textContent = q.text;
+  document.getElementById('progressBar').style.width = `${((current + 1) / QUESTIONS.length) * 100}%`;
+  document.getElementById('btnNext').disabled = answers[current] === null;
+  document.getElementById('btnNext').textContent = current === QUESTIONS.length - 1 ? '결과 보기 🎯' : '다음 →';
+
+  // 선택 상태 렌더
+  const btns = document.querySelectorAll('.scale-btn');
+  btns.forEach((btn, idx) => {
+    btn.classList.toggle('selected', answers[current] === idx + 1);
+  });
+
+  // fade
+  document.querySelector('.q-body').classList.remove('fade-in');
+  void document.querySelector('.q-body').offsetWidth;
+  document.querySelector('.q-body').classList.add('fade-in');
+
+  renderDots();
+}
+
+function renderDots() {
+  const el = document.getElementById('dotIndicator');
+  el.innerHTML = QUESTIONS.map((_, i) => {
+    let cls = 'ans-dot';
+    if (answers[i] !== null) cls += ' done';
+    if (i === current) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+}
+
+// ============================
+// 점수 선택
+// ============================
+function selectScore(score) {
+  answers[current] = score;
+  const btns = document.querySelectorAll('.scale-btn');
+  btns.forEach((btn, idx) => {
+    btn.classList.toggle('selected', score === idx + 1);
+  });
+  document.getElementById('btnNext').disabled = false;
+  renderDots();
+
+  // 자동 다음
+  setTimeout(() => {
+    if (current < QUESTIONS.length - 1) nextQ();
+    else if (current === QUESTIONS.length - 1) showResult();
+  }, 350);
+}
+
+// ============================
+// 이전/다음
+// ============================
+function prevQ() {
+  if (current > 0) { current--; renderQuestion(); }
+}
+
+function nextQ() {
+  if (answers[current] === null) return;
+  if (current < QUESTIONS.length - 1) { current++; renderQuestion(); }
+  else showResult();
+}
+
+// ============================
+// 결과 계산
+// ============================
+function calcScores() {
+  const scores = {};
+  CATEGORIES.forEach(c => scores[c] = 0);
+  QUESTIONS.forEach((q, i) => {
+    if (answers[i] !== null) scores[q.category] += answers[i];
+  });
+  return scores;
+}
+
+function showResult() {
+  const scores = calcScores();
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const topCat = sorted[0][0];
+  const maxScore = 15; // 3문항 × 5점
+
+  const profile = TYPE_PROFILES[topCat];
+  const meta = CATEGORY_META[topCat];
+
+  document.getElementById('resultCrown').textContent = profile.crown;
+  document.getElementById('resultType').textContent = profile.title;
+  document.getElementById('resultDesc').textContent = meta.desc;
+
+  // 차트
+  const chartEl = document.getElementById('chartContainer');
+  const colors = ['#f5a623','#8b5cf6','#3b82f6','#10b981','#f43f5e','#06b6d4','#a855f7','#f97316','#84cc16','#64748b'];
+  chartEl.innerHTML = sorted.map(([cat, score], idx) => {
+    const pct = Math.round((score / maxScore) * 100);
+    const m = CATEGORY_META[cat];
+    return `
+      <div class="chart-item">
+        <div class="chart-label">${m.icon} ${cat}</div>
+        <div class="chart-bar-outer">
+          <div class="chart-bar-inner" style="width:0%;background:linear-gradient(90deg,${m.color}cc,${m.color})" data-target="${pct}">
+            ${pct}%
+          </div>
+        </div>
+        <div class="chart-score" style="color:${m.color}">${score}</div>
+      </div>
+    `;
+  }).join('');
+
+  // 애니메이션
+  setTimeout(() => {
+    document.querySelectorAll('.chart-bar-inner').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+      bar.style.transition = 'width 1s cubic-bezier(0.4,0,0.2,1)';
+    });
+  }, 100);
+
+  // Top 3
+  const topEl = document.getElementById('topValues');
+  topEl.innerHTML = sorted.slice(0, 3).map(([cat, score], idx) => {
+    const m = CATEGORY_META[cat];
+    const ranks = ['1위', '2위', '3위'];
+    return `
+      <div class="value-card">
+        <div class="vc-rank">${idx + 1}</div>
+        <div class="vc-info">
+          <div class="vc-icon">${m.icon}</div>
+          <div class="vc-name">${cat} <span style="font-size:12px;color:var(--text-muted)">(${score}점/${maxScore}점)</span></div>
+          <div class="vc-desc">${m.desc}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 추천 직업 (top3 합산)
+  const allCareers = new Set();
+  sorted.slice(0, 3).forEach(([cat]) => {
+    CATEGORY_META[cat].careers.forEach(c => allCareers.add(c));
+  });
+  document.getElementById('careerTags').innerHTML = [...allCareers].map(c => `<div class="career-tag">${c}</div>`).join('');
+
+  // QR 생성
+  generateQR();
+
+  showScreen('result');
+}
+
+// ============================
+// QR 코드 생성
+// ============================
+function generateQR() {
+  if (qrGenerated) return;
+  qrGenerated = true;
+  const el = document.getElementById('qrcode');
+  el.innerHTML = '';
+  const url = window.location.href.split('?')[0];
+  try {
+    new QRCode(el, {
+      text: url,
+      width: 180,
+      height: 180,
+      colorDark: '#1a1a2e',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--text-muted);font-size:12px;padding:20px">QR 생성 오류<br><small>${url}</small></div>`;
+  }
+}
+
+// ============================
+// 공유
+// ============================
+async function copyLink() {
+  const url = window.location.href.split('?')[0];
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = event.target;
+    btn.textContent = '✅ 복사되었습니다!';
+    setTimeout(() => btn.textContent = '🔗 링크 복사하기', 2000);
+  } catch {
+    prompt('링크를 복사하세요:', url);
+  }
+}
+
+async function shareResult() {
+  const scores = calcScores();
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const topCat = sorted[0][0];
+  const profile = TYPE_PROFILES[topCat];
+
+  const text = `🧭 나의 직업 가치관 검사 결과\n✨ 유형: ${profile.title}\n🥇 핵심 가치: ${sorted.slice(0,3).map(([c])=>c).join(' · ')}\n\n나도 검사해보기 👇`;
+  const url = window.location.href.split('?')[0];
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: '직업 가치관 검사 결과', text, url });
+    } catch {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(text + '\n' + url);
+      alert('결과가 클립보드에 복사되었습니다!');
+    } catch {
+      prompt('결과를 공유하세요:', text + '\n' + url);
+    }
+  }
+}
+</script>
+</body>
+</html>
